@@ -12,6 +12,7 @@ module ActiveJob
       
       def set(*args)
         @_set = args
+        self
       end
 
       def method_missing(name, *args)
