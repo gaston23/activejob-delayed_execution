@@ -7,10 +7,18 @@ module ActiveJob
     class Proxy < BasicObject
       def initialize(object)
         @object = object
+        @_set = nil
+      end
+      
+      def set(*args)
+        @_set = args
       end
 
       def method_missing(name, *args)
-        DelayedExecutionJob.perform_later(@object, name.to_s, *args)
+        DelayedExecutionJob.tap{ |job|
+          job = job.set(*@_set) if @_set.present?
+          job.perform_later(@object, name.to_s, *args)
+        }
       end
     end
 
